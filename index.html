@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Streak Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.38.0/supabase.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .auth-container {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .auth-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin: 10px 0;
+            transition: transform 0.2s;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .auth-toggle {
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .auth-toggle a {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logout-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .add-habit {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .input-group input,
+        .input-group select {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .add-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .habits-list {
+            padding: 30px;
+        }
+
+        .habit-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .habit-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .habit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .habit-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .habit-icon {
+            font-size: 1.5em;
+        }
+
+        .streak-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .current-streak {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .streak-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .best-streak {
+            text-align: right;
+            color: #666;
+        }
+
+        .habit-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .check-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .check-btn.completed {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+        }
+
+        .reset-btn,
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover,
+        .delete-btn:hover {
+            background: #ff3742;
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        .calendar-view {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+        }
+
+        .calendar-day {
+            width: 25px;
+            height: 25px;
+            border-radius: 4px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .calendar-day.completed {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .calendar-day.today {
+            border: 2px solid #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .error {
+            background: #ff4757;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 Streak Tracker</h1>
+            <p>Build consistent habits, one day at a time</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+            <div>Loading...</div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error hidden">
+            <div id="errorMessage"></div>
+        </div>
+
+        <!-- Auth Container -->
+        <div id="authContainer" class="auth-container hidden">
+            <div class="auth-form">
+                <h2 id="authTitle">Welcome Back!</h2>
+                <p id="authSubtitle">Sign in to track your habits</p>
+
+                <input type="email" id="email" placeholder="Email">
+                <input type="password" id="password" placeholder="Password">
+
+                <button id="authSubmit" class="auth-btn">Sign In</button>
+
+                <div class="auth-toggle">
+                    <span id="authToggleText">Don't have an account?</span>
+                    <a id="authToggleLink">Sign up</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="mainApp" class="hidden">
+            <div class="user-info">
+                <span id="userEmail"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="add-habit">
+                <div class="input-group">
+                    <input type="text" id="habitName" placeholder="Enter habit name (e.g., Go to gym)">
+                    <select id="habitIcon">
+                        <option value="💪">💪 Gym/Exercise</option>
+                        <option value="📚">📚 Study</option>
+                        <option value="💧">💧 Drink Water</option>
+                        <option value="🧘">🧘 Meditation</option>
+                        <option value="📝">📝 Writing</option>
+                        <option value="🏃">🏃 Running</option>
+                        <option value="🎯">🎯 General Goal</option>
+                        <option value="🍎">🍎 Healthy Eating</option>
+                        <option value="😴">😴 Sleep Early</option>
+                        <option value="📱">📱 No Social Media</option>
+                    </select>
+                    <button class="add-btn" onclick="addHabit()">Add Habit</button>
+                </div>
+            </div>
+
+            <div class="habits-list" id="habitsList">
+                <div class="loading">Loading your habits...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Replace with your Supabase project details
+        const SUPABASE_URL = 'https://nrsoywnegklryvmuguzy.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yc295d25lZ2tscnl2bXVndXp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MjMxMjAsImV4cCI6MjA3MjE5OTEyMH0.M2C0KP2AYQz9LLICs4AKsdYSoR0pvdzdf3Yz_eSG8Mw'
+
+        // Initialize Supabase (will show error until you add your credentials)
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (error) {
+            showError('Please configure Supabase credentials in the code');
+        }
+
+        let currentUser = null;
+        let habits = [];
+        let isSignUp = false;
+
+        // DOM elements
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const authContainer = document.getElementById('authContainer');
+        const mainApp = document.getElementById('mainApp');
+        const authTitle = document.getElementById('authTitle');
+        const authSubtitle = document.getElementById('authSubtitle');
+        const authSubmit = document.getElementById('authSubmit');
+        const authToggleText = document.getElementById('authToggleText');
+        const authToggleLink = document.getElementById('authToggleLink');
+        const userEmail = document.getElementById('userEmail');
+        const habitsList = document.getElementById('habitsList');
+
+        // Initialize app
+        async function init() {
+            try {
+                // Check if user is already logged in
+                const { data: { user } } = await supabase.auth.getUser();
+
+                if (user) {
+                    currentUser = user;
+                    showMainApp();
+                    await loadHabits();
+                } else {
+                    showAuth();
+                }
+            } catch (error) {
+                showError('Failed to initialize app: ' + error.message);
+            }
+
+            loadingState.classList.add('hidden');
+        }
+
+        // Show different states
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            errorState.classList.remove('hidden');
+            authContainer.classList.add('hidden');
+            mainApp.classList.add('hidden');
+        }
+
+        function showAuth() {
+            authContainer.classList.remove('hidden');
+            mainApp.classList.add('hidden');
+            errorState.classList.add('hidden');
+        }
+
+        function showMainApp() {
+            mainApp.classList.remove('hidden');
+            authContainer.classList.add('hidden');
+            errorState.classList.add('hidden');
+            userEmail.textContent = currentUser.email;
+        }
+
+        // Auth functions
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+
+            if (isSignUp) {
+                authTitle.textContent = 'Create Account';
+                authSubtitle.textContent = 'Sign up to start tracking habits';
+                authSubmit.textContent = 'Sign Up';
+                authToggleText.textContent = 'Already have an account?';
+                authToggleLink.textContent = 'Sign in';
+            } else {
+                authTitle.textContent = 'Welcome Back!';
+                authSubtitle.textContent = 'Sign in to track your habits';
+                authSubmit.textContent = 'Sign In';
+                authToggleText.textContent = "Don't have an account?";
+                authToggleLink.textContent = 'Sign up';
+            }
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+
+            try {
+                let result;
+
+                if (isSignUp) {
+                    result = await supabase.auth.signUp({
+                        email: email,
+                        password: password,
+                    });
+
+                    if (result.error) throw result.error;
+
+                    alert('Check your email for verification link!');
+                    toggleAuthMode(); // Switch to sign in
+                } else {
+                    result = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password,
+                    });
+
+                    if (result.error) throw result.error;
+
+                    currentUser = result.data.user;
+                    showMainApp();
+                    await loadHabits();
+                }
+            } catch (error) {
+                alert('Auth error: ' + error.message);
+            }
+        }
+
+        async function logout() {
+            try {
+                await supabase.auth.signOut();
+                currentUser = null;
+                habits = [];
+                showAuth();
+
+                // Clear form
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+            } catch (error) {
+                alert('Logout error: ' + error.message);
+            }
+        }
+
+        // Habit functions
+        async function loadHabits() {
+            try {
+                const { data, error } = await supabase
+                    .from('habits')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                habits = data || [];
+                renderHabits();
+            } catch (error) {
+                console.error('Error loading habits:', error);
+                habitsList.innerHTML = '<div class="error">Failed to load habits</div>';
+            }
+        }
+
+        async function addHabit() {
+            const name = document.getElementById('habitName').value.trim();
+            const icon = document.getElementById('habitIcon').value;
+
+            if (!name) {
+                alert('Please enter a habit name');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('habits')
+                    .insert([
+                        {
+                            user_id: currentUser.id,
+                            name: name,
+                            icon: icon,
+                            current_streak: 0,
+                            best_streak: 0,
+                            completed_dates: [],
+                        }
+                    ])
+                    .select();
+
+                if (error) throw error;
+
+                habits.push(data[0]);
+                renderHabits();
+
+                document.getElementById('habitName').value = '';
+            } catch (error) {
+                alert('Error adding habit: ' + error.message);
+            }
+        }
+
+        async function completeHabit(id) {
+            const today = new Date().toISOString().split('T')[0];
+            const habit = habits.find(h => h.id === id);
+
+            if (!habit) return;
+
+            let updatedDates = [...habit.completed_dates];
+            let currentStreak = habit.current_streak;
+            let bestStreak = habit.best_streak;
+
+            if (updatedDates.includes(today)) {
+                // Remove today's completion
+                updatedDates = updatedDates.filter(date => date !== today);
+                if (habit.last_completed === today) {
+                    currentStreak = Math.max(0, currentStreak - 1);
+                }
+            } else {
+                // Add today's completion
+                updatedDates.push(today);
+                updatedDates.sort();
+
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                if (habit.last_completed === yesterdayStr || currentStreak === 0) {
+                    currentStreak += 1;
+                } else {
+                    currentStreak = 1;
+                }
+
+                bestStreak = Math.max(bestStreak, currentStreak);
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('habits')
+                    .update({
+                        completed_dates: updatedDates,
+                        current_streak: currentStreak,
+                        best_streak: bestStreak,
+                        last_completed: updatedDates[updatedDates.length - 1] || null
+                    })
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                // Update local data
+                habit.completed_dates = updatedDates;
+                habit.current_streak = currentStreak;
+                habit.best_streak = bestStreak;
+                habit.last_completed = updatedDates[updatedDates.length - 1] || null;
+
+                renderHabits();
+            } catch (error) {
+                alert('Error updating habit: ' + error.message);
+            }
+        }
+
+        async function resetHabit(id) {
+            if (!confirm('Are you sure you want to reset this habit streak?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('habits')
+                    .update({
+                        current_streak: 0,
+                        completed_dates: [],
+                        last_completed: null
+                    })
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                const habit = habits.find(h => h.id === id);
+                habit.current_streak = 0;
+                habit.completed_dates = [];
+                habit.last_completed = null;
+
+                renderHabits();
+            } catch (error) {
+                alert('Error resetting habit: ' + error.message);
+            }
+        }
+
+        async function deleteHabit(id) {
+            if (!confirm('Are you sure you want to delete this habit?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('habits')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                habits = habits.filter(h => h.id !== id);
+                renderHabits();
+            } catch (error) {
+                alert('Error deleting habit: ' + error.message);
+            }
+        }
+
+        function generateCalendarView(habit) {
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 29);
+
+            let calendarHtml = '<div class="calendar-view">';
+
+            for (let d = new Date(thirtyDaysAgo); d <= today; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toISOString().split('T')[0];
+                const isCompleted = habit.completed_dates.includes(dateStr);
+                const isToday = dateStr === today.toISOString().split('T')[0];
+
+                const classes = ['calendar-day'];
+                if (isCompleted) classes.push('completed');
+                if (isToday) classes.push('today');
+
+                calendarHtml += `<div class="${classes.join(' ')}" title="${dateStr}">
+                    ${d.getDate()}
+                </div>`;
+            }
+
+            calendarHtml += '</div>';
+            return calendarHtml;
+        }
+
+        function renderHabits() {
+            if (habits.length === 0) {
+                habitsList.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No habits yet!</h3>
+                        <p>Add your first habit above to start building streaks</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+
+            habitsList.innerHTML = habits.map(habit => {
+                const completedToday = habit.completed_dates.includes(today);
+
+                return `
+                    <div class="habit-card">
+                        <div class="habit-header">
+                            <div class="habit-name">${habit.name}</div>
+                            <div class="habit-icon">${habit.icon}</div>
+                        </div>
+                        
+                        <div class="streak-info">
+                            <div>
+                                <div class="current-streak">${habit.current_streak}</div>
+                                <div class="streak-label">Current Streak</div>
+                            </div>
+                            <div class="best-streak">
+                                <div style="font-size: 1.2em; font-weight: 600;">${habit.best_streak}</div>
+                                <div style="font-size: 0.9em;">Best Streak</div>
+                            </div>
+                        </div>
+                        
+                        ${generateCalendarView(habit)}
+                        
+                        <div class="habit-actions">
+                            <button class="check-btn ${completedToday ? 'completed' : ''}" 
+                                    onclick="completeHabit(${habit.id})">
+                                ${completedToday ? '✓ Done Today' : 'Mark Complete'}
+                            </button>
+                            <button class="reset-btn" onclick="resetHabit(${habit.id})">Reset</button>
+                            <button class="delete-btn" onclick="deleteHabit(${habit.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Event listeners
+        authToggleLink.addEventListener('click', toggleAuthMode);
+        authSubmit.addEventListener('click', handleAuth);
+
+        document.getElementById('email').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') handleAuth();
+        });
+
+        document.getElementById('password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') handleAuth();
+        });
+
+        document.getElementById('habitName').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') addHabit();
+        });
+
+        // Initialize app
+        if (supabase) {
+            init();
+        }
+    </script>
+</body>
+
+</html>
