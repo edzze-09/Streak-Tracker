@@ -27,6 +27,7 @@
             border-radius: 15px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            position: relative;
         }
 
         .header {
@@ -104,18 +105,59 @@
             padding: 15px 30px;
             border-bottom: 1px solid #eee;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
+        }
+
+        .welcome-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
         }
 
         .logout-btn {
             background: #ff4757;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .name-setup {
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .name-input {
+            width: 300px;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 15px 10px;
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .name-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
         }
 
         .add-habit {
@@ -173,11 +215,69 @@
             margin-bottom: 20px;
             border-left: 5px solid #667eea;
             transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
         }
 
         .habit-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .habit-menu {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #666;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .habit-menu:hover {
+            background-color: #e9ecef;
+        }
+
+        .habit-dropdown {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 120px;
+            display: none;
+        }
+
+        .habit-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .dropdown-item.delete {
+            color: #ff4757;
+        }
+
+        .dropdown-item.delete:hover {
+            background-color: #fff5f5;
         }
 
         .habit-header {
@@ -193,10 +293,6 @@
             color: #333;
         }
 
-        .habit-icon {
-            font-size: 1.5em;
-        }
-
         .streak-info {
             display: flex;
             justify-content: space-between;
@@ -204,21 +300,114 @@
             margin-bottom: 15px;
         }
 
-        .current-streak {
-            font-size: 2em;
-            font-weight: bold;
-            color: #ff6b6b;
+        .streak-emoji-container {
+            text-align: center;
+            position: relative;
         }
 
-        .streak-label {
+        .streak-emoji {
+            font-size: 4em;
+            display: inline-block;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .streak-glow-0 {
+            text-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
+        }
+
+        .streak-glow-1 {
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.4);
+        }
+
+        .streak-glow-2 {
+            text-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+        }
+
+        .streak-glow-3 {
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .streak-glow-4 {
+            text-shadow: 0 0 25px rgba(255, 107, 107, 0.7);
+        }
+
+        .streak-glow-5 {
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+        }
+
+        .streak-glow-high {
+            text-shadow: 0 0 35px rgba(255, 107, 107, 0.9),
+                0 0 50px rgba(255, 107, 107, 0.6),
+                0 0 75px rgba(255, 107, 107, 0.4);
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            from {
+                text-shadow: 0 0 35px rgba(255, 107, 107, 0.9),
+                    0 0 50px rgba(255, 107, 107, 0.6),
+                    0 0 75px rgba(255, 107, 107, 0.4);
+            }
+
+            to {
+                text-shadow: 0 0 40px rgba(255, 107, 107, 1),
+                    0 0 60px rgba(255, 107, 107, 0.8),
+                    0 0 85px rgba(255, 107, 107, 0.6);
+            }
+        }
+
+        .streak-text {
             font-size: 0.9em;
             color: #666;
-            margin-top: 5px;
+            margin-top: 8px;
+            font-weight: 600;
         }
 
         .best-streak {
             text-align: right;
             color: #666;
+        }
+
+        .habit-details {
+            margin-top: 15px;
+        }
+
+        .details-toggle {
+            background: #e9ecef;
+            color: #666;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .details-toggle:hover {
+            background: #dee2e6;
+            transform: translateY(-1px);
+        }
+
+        .details-toggle.expanded {
+            background: #667eea;
+            color: white;
+        }
+
+        .calendar-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .calendar-container.expanded {
+            max-height: 200px;
+            margin-bottom: 15px;
         }
 
         .habit-actions {
@@ -235,6 +424,7 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.2s;
+            flex: 1;
         }
 
         .check-btn:hover {
@@ -246,9 +436,8 @@
             background: linear-gradient(45deg, #2ecc71, #27ae60);
         }
 
-        .reset-btn,
-        .delete-btn {
-            background: #ff4757;
+        .reset-btn {
+            background: #ffa502;
             color: white;
             border: none;
             padding: 8px 15px;
@@ -258,9 +447,8 @@
             transition: all 0.2s;
         }
 
-        .reset-btn:hover,
-        .delete-btn:hover {
-            background: #ff3742;
+        .reset-btn:hover {
+            background: #ff9500;
             transform: translateY(-1px);
         }
 
@@ -360,9 +548,18 @@
 
         <!-- Main App -->
         <div id="mainApp" class="hidden">
-            <div class="user-info">
-                <span id="userEmail"></span>
-                <button class="logout-btn" onclick="logout()">Logout</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+
+            <!-- Name Setup -->
+            <div id="nameSetup" class="name-setup hidden">
+                <h2>What should we call you?</h2>
+                <p>Let's personalize your experience</p>
+                <input type="text" id="displayName" class="name-input" placeholder="Enter your name">
+                <button class="name-btn" onclick="saveName()">Continue</button>
+            </div>
+
+            <div class="user-info" id="userInfoSection" style="display: none;">
+                <div class="welcome-text" id="welcomeText"></div>
             </div>
 
             <div class="add-habit">
@@ -392,13 +589,21 @@
 
     <script>
         // Replace with your Supabase project details
-        const SUPABASE_URL = 'https://nrsoywnegklryvmuguzy.supabase.co'
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yc295d25lZ2tscnl2bXVndXp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MjMxMjAsImV4cCI6MjA3MjE5OTEyMH0.M2C0KP2AYQz9LLICs4AKsdYSoR0pvdzdf3Yz_eSG8Mw'
+        const SUPABASE_URL = 'https://nrsoywnegklryvmuguzy.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yc295d25lZ2tscnl2bXVndXp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MjMxMjAsImV4cCI6MjA3MjE5OTEyMH0.M2C0KP2AYQz9LLICs4AKsdYSoR0pvdzdf3Yz_eSG8Mw';
 
         // Initialize Supabase
         let supabase;
         try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const supabaseLib = window.supabase || window.createClient;
+            if (supabaseLib && supabaseLib.createClient) {
+                supabase = supabaseLib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else if (window.createClient) {
+                supabase = window.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                throw new Error('Supabase library not found');
+            }
+            console.log('Supabase initialized successfully!');
         } catch (error) {
             console.error('Supabase initialization error:', error);
         }
@@ -406,23 +611,25 @@
         let currentUser = null;
         let habits = [];
         let isSignUp = false;
+        let userDisplayName = '';
 
         // DOM elements
         const loadingState = document.getElementById('loadingState');
         const errorState = document.getElementById('errorState');
         const authContainer = document.getElementById('authContainer');
         const mainApp = document.getElementById('mainApp');
+        const nameSetup = document.getElementById('nameSetup');
+        const userInfoSection = document.getElementById('userInfoSection');
         const authTitle = document.getElementById('authTitle');
         const authSubtitle = document.getElementById('authSubtitle');
         const authSubmit = document.getElementById('authSubmit');
         const authToggleText = document.getElementById('authToggleText');
         const authToggleLink = document.getElementById('authToggleLink');
-        const userEmail = document.getElementById('userEmail');
+        const welcomeText = document.getElementById('welcomeText');
         const habitsList = document.getElementById('habitsList');
 
         // Initialize app
         async function init() {
-            // Wait a moment for DOM to be ready
             await new Promise(resolve => setTimeout(resolve, 100));
 
             try {
@@ -433,15 +640,12 @@
                     return;
                 }
 
-                // Check if user is already logged in
                 const { data: { user }, error } = await supabase.auth.getUser();
-
                 console.log('User check result:', user, error);
 
                 if (user) {
                     currentUser = user;
-                    showMainApp();
-                    await loadHabits();
+                    await checkUserName();
                 } else {
                     showAuth();
                 }
@@ -453,7 +657,6 @@
             loadingState.classList.add('hidden');
         }
 
-        // Show different states
         function showError(message) {
             document.getElementById('errorMessage').textContent = message;
             errorState.classList.remove('hidden');
@@ -471,10 +674,70 @@
             mainApp.classList.remove('hidden');
             authContainer.classList.add('hidden');
             errorState.classList.add('hidden');
-            userEmail.textContent = currentUser.email;
+            userInfoSection.style.display = 'flex';
+            welcomeText.textContent = `Hey ${userDisplayName}! 🎉`;
         }
 
-        // Auth functions
+        function showNameSetup() {
+            mainApp.classList.remove('hidden');
+            authContainer.classList.add('hidden');
+            errorState.classList.add('hidden');
+            nameSetup.classList.remove('hidden');
+            userInfoSection.style.display = 'none';
+        }
+
+        async function checkUserName() {
+            try {
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .select('display_name')
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    throw error;
+                }
+
+                if (data && data.display_name) {
+                    userDisplayName = data.display_name;
+                    showMainApp();
+                    await loadHabits();
+                } else {
+                    showNameSetup();
+                }
+            } catch (error) {
+                console.error('Error checking user name:', error);
+                showNameSetup();
+            }
+        }
+
+        async function saveName() {
+            const name = document.getElementById('displayName').value.trim();
+
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('user_profiles')
+                    .upsert({
+                        user_id: currentUser.id,
+                        display_name: name
+                    });
+
+                if (error) throw error;
+
+                userDisplayName = name;
+                nameSetup.classList.add('hidden');
+                showMainApp();
+                await loadHabits();
+            } catch (error) {
+                alert('Error saving name: ' + error.message);
+            }
+        }
+
         function toggleAuthMode() {
             isSignUp = !isSignUp;
 
@@ -514,7 +777,7 @@
                     if (result.error) throw result.error;
 
                     alert('Check your email for verification link!');
-                    toggleAuthMode(); // Switch to sign in
+                    toggleAuthMode();
                 } else {
                     result = await supabase.auth.signInWithPassword({
                         email: email,
@@ -524,8 +787,7 @@
                     if (result.error) throw result.error;
 
                     currentUser = result.data.user;
-                    showMainApp();
-                    await loadHabits();
+                    await checkUserName();
                 }
             } catch (error) {
                 alert('Auth error: ' + error.message);
@@ -536,18 +798,18 @@
             try {
                 await supabase.auth.signOut();
                 currentUser = null;
+                userDisplayName = '';
                 habits = [];
                 showAuth();
 
-                // Clear form
                 document.getElementById('email').value = '';
                 document.getElementById('password').value = '';
+                document.getElementById('displayName').value = '';
             } catch (error) {
                 alert('Logout error: ' + error.message);
             }
         }
 
-        // Habit functions
         async function loadHabits() {
             try {
                 const { data, error } = await supabase
@@ -578,23 +840,20 @@
             try {
                 const { data, error } = await supabase
                     .from('habits')
-                    .insert([
-                        {
-                            user_id: currentUser.id,
-                            name: name,
-                            icon: icon,
-                            current_streak: 0,
-                            best_streak: 0,
-                            completed_dates: [],
-                        }
-                    ])
+                    .insert([{
+                        user_id: currentUser.id,
+                        name: name,
+                        icon: icon,
+                        current_streak: 0,
+                        best_streak: 0,
+                        completed_dates: [],
+                    }])
                     .select();
 
                 if (error) throw error;
 
                 habits.push(data[0]);
                 renderHabits();
-
                 document.getElementById('habitName').value = '';
             } catch (error) {
                 alert('Error adding habit: ' + error.message);
@@ -612,13 +871,11 @@
             let bestStreak = habit.best_streak;
 
             if (updatedDates.includes(today)) {
-                // Remove today's completion
                 updatedDates = updatedDates.filter(date => date !== today);
                 if (habit.last_completed === today) {
                     currentStreak = Math.max(0, currentStreak - 1);
                 }
             } else {
-                // Add today's completion
                 updatedDates.push(today);
                 updatedDates.sort();
 
@@ -648,7 +905,6 @@
 
                 if (error) throw error;
 
-                // Update local data
                 habit.completed_dates = updatedDates;
                 habit.current_streak = currentStreak;
                 habit.best_streak = bestStreak;
@@ -699,10 +955,60 @@
 
                 habits = habits.filter(h => h.id !== id);
                 renderHabits();
+
+                document.querySelectorAll('.habit-dropdown').forEach(dd => {
+                    dd.classList.remove('show');
+                });
             } catch (error) {
                 alert('Error deleting habit: ' + error.message);
             }
         }
+
+        function getStreakGlowClass(streak) {
+            if (streak === 0) return 'streak-glow-0';
+            if (streak <= 1) return 'streak-glow-1';
+            if (streak <= 3) return 'streak-glow-2';
+            if (streak <= 7) return 'streak-glow-3';
+            if (streak <= 14) return 'streak-glow-4';
+            if (streak <= 30) return 'streak-glow-5';
+            return 'streak-glow-high';
+        }
+
+        function toggleHabitMenu(id) {
+            const dropdown = document.getElementById(`dropdown-${id}`);
+            const allDropdowns = document.querySelectorAll('.habit-dropdown');
+
+            allDropdowns.forEach(dd => {
+                if (dd !== dropdown) dd.classList.remove('show');
+            });
+
+            dropdown.classList.toggle('show');
+        }
+
+        function toggleCalendar(id) {
+            const container = document.getElementById(`calendar-${id}`);
+            const button = document.getElementById(`toggle-${id}`);
+            const arrow = button.querySelector('.arrow');
+
+            container.classList.toggle('expanded');
+            button.classList.toggle('expanded');
+
+            if (container.classList.contains('expanded')) {
+                arrow.textContent = '▼';
+                button.querySelector('.toggle-text').textContent = 'Hide Calendar';
+            } else {
+                arrow.textContent = '▶';
+                button.querySelector('.toggle-text').textContent = 'Show Calendar';
+            }
+        }
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.habit-menu')) {
+                document.querySelectorAll('.habit-dropdown').forEach(dd => {
+                    dd.classList.remove('show');
+                });
+            }
+        });
 
         function generateCalendarView(habit) {
             const today = new Date();
@@ -744,18 +1050,23 @@
 
             habitsList.innerHTML = habits.map(habit => {
                 const completedToday = habit.completed_dates.includes(today);
+                const glowClass = getStreakGlowClass(habit.current_streak);
 
                 return `
                     <div class="habit-card">
+                        <div class="habit-menu" onclick="toggleHabitMenu(${habit.id})">⋮</div>
+                        <div id="dropdown-${habit.id}" class="habit-dropdown">
+                            <button class="dropdown-item delete" onclick="deleteHabit(${habit.id})">Delete</button>
+                        </div>
+                        
                         <div class="habit-header">
                             <div class="habit-name">${habit.name}</div>
-                            <div class="habit-icon">${habit.icon}</div>
                         </div>
                         
                         <div class="streak-info">
-                            <div>
-                                <div class="current-streak">${habit.current_streak}</div>
-                                <div class="streak-label">Current Streak</div>
+                            <div class="streak-emoji-container">
+                                <div class="streak-emoji ${glowClass}">${habit.icon}</div>
+                                <div class="streak-text">Current Streak: ${habit.current_streak}</div>
                             </div>
                             <div class="best-streak">
                                 <div style="font-size: 1.2em; font-weight: 600;">${habit.best_streak}</div>
@@ -763,7 +1074,15 @@
                             </div>
                         </div>
                         
-                        ${generateCalendarView(habit)}
+                        <div class="habit-details">
+                            <button class="details-toggle" id="toggle-${habit.id}" onclick="toggleCalendar(${habit.id})">
+                                <span class="arrow">▶</span>
+                                <span class="toggle-text">Show Calendar</span>
+                            </button>
+                            <div class="calendar-container" id="calendar-${habit.id}">
+                                ${generateCalendarView(habit)}
+                            </div>
+                        </div>
                         
                         <div class="habit-actions">
                             <button class="check-btn ${completedToday ? 'completed' : ''}" 
@@ -771,30 +1090,49 @@
                                 ${completedToday ? '✓ Done Today' : 'Mark Complete'}
                             </button>
                             <button class="reset-btn" onclick="resetHabit(${habit.id})">Reset</button>
-                            <button class="delete-btn" onclick="deleteHabit(${habit.id})">Delete</button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // Event listeners
-        authToggleLink.addEventListener('click', toggleAuthMode);
-        authSubmit.addEventListener('click', handleAuth);
+        document.addEventListener('DOMContentLoaded', function () {
+            if (authToggleLink) {
+                authToggleLink.addEventListener('click', toggleAuthMode);
+            }
+            if (authSubmit) {
+                authSubmit.addEventListener('click', handleAuth);
+            }
 
-        document.getElementById('email').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') handleAuth();
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') handleAuth();
+                });
+            }
+
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') handleAuth();
+                });
+            }
+
+            const habitNameInput = document.getElementById('habitName');
+            if (habitNameInput) {
+                habitNameInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') addHabit();
+                });
+            }
+
+            const displayNameInput = document.getElementById('displayName');
+            if (displayNameInput) {
+                displayNameInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') saveName();
+                });
+            }
         });
 
-        document.getElementById('password').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') handleAuth();
-        });
-
-        document.getElementById('habitName').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') addHabit();
-        });
-
-        // Initialize app when DOM is ready
         if (typeof window !== 'undefined') {
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
