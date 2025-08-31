@@ -305,6 +305,49 @@
             position: relative;
         }
 
+        .streak-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .streak-done-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .streak-done-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .streak-done-btn.completed {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+        }
+
+        .streak-reset-btn {
+            background: #ffa502;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .streak-reset-btn:hover {
+            background: #ff9500;
+            transform: translateY(-1px);
+        }
+
         .streak-emoji {
             font-size: 4em;
             display: inline-block;
@@ -452,6 +495,10 @@
             transform: translateY(-1px);
         }
 
+        .hidden {
+            display: none;
+        }
+
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -480,6 +527,13 @@
             justify-content: center;
             font-size: 12px;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-day:hover {
+            background: #dee2e6;
+            transform: scale(1.1);
         }
 
         .calendar-day.completed {
@@ -487,8 +541,132 @@
             color: white;
         }
 
+        .calendar-day.completed:hover {
+            background: #45a049;
+        }
+
         .calendar-day.today {
             border: 2px solid #667eea;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .popup-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .popup-close {
+            background: #ff4757;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .popup-close:hover {
+            background: #ff3742;
+            transform: scale(1.1);
+        }
+
+        .note-section {
+            margin-bottom: 15px;
+        }
+
+        .note-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .note-textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+
+        .note-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .popup-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .save-note-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .save-note-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cancel-btn:hover {
+            background: #5a6268;
         }
 
         .loading {
@@ -585,6 +763,25 @@
                 <div class="loading">Loading your habits...</div>
             </div>
         </div>
+
+        <!-- Note Popup -->
+        <div id="notePopup" class="popup-overlay hidden">
+            <div class="popup">
+                <div class="popup-header">
+                    <div class="popup-title" id="popupTitle">Add Note</div>
+                    <button class="popup-close" onclick="closeNotePopup()">×</button>
+                </div>
+                <div class="note-section">
+                    <div class="note-label">Notes for this day:</div>
+                    <textarea id="noteTextarea" class="note-textarea"
+                        placeholder="Write your thoughts, achievements, or notes for this day..."></textarea>
+                </div>
+                <div class="popup-actions">
+                    <button class="cancel-btn" onclick="closeNotePopup()">Cancel</button>
+                    <button class="save-note-btn" onclick="saveNote()">Save Note</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -612,6 +809,8 @@
         let habits = [];
         let isSignUp = false;
         let userDisplayName = '';
+        let currentNoteDate = null;
+        let currentNoteHabitId = null;
 
         // DOM elements
         const loadingState = document.getElementById('loadingState');
@@ -1002,6 +1201,66 @@
             }
         }
 
+        function openNotePopup(date, habitId) {
+            const habit = habits.find(h => h.id === habitId);
+            if (!habit) return;
+
+            currentNoteDate = date;
+            currentNoteHabitId = habitId;
+
+            const popup = document.getElementById('notePopup');
+            const title = document.getElementById('popupTitle');
+            const textarea = document.getElementById('noteTextarea');
+
+            const formattedDate = new Date(date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            title.textContent = `Notes for ${habit.name} - ${formattedDate}`;
+
+            // Load existing note
+            const existingNote = habit.notes && habit.notes[date] ? habit.notes[date] : '';
+            textarea.value = existingNote;
+
+            popup.classList.remove('hidden');
+            textarea.focus();
+        }
+
+        function closeNotePopup() {
+            document.getElementById('notePopup').classList.add('hidden');
+            currentNoteDate = null;
+            currentNoteHabitId = null;
+        }
+
+        async function saveNote() {
+            if (!currentNoteDate || !currentNoteHabitId) return;
+
+            const noteText = document.getElementById('noteTextarea').value;
+            const habit = habits.find(h => h.id === currentNoteHabitId);
+
+            if (!habit) return;
+
+            try {
+                // Initialize notes object if it doesn't exist
+                if (!habit.notes) habit.notes = {};
+                habit.notes[currentNoteDate] = noteText;
+
+                const { error } = await supabase
+                    .from('habits')
+                    .update({ notes: habit.notes })
+                    .eq('id', currentNoteHabitId);
+
+                if (error) throw error;
+
+                closeNotePopup();
+            } catch (error) {
+                alert('Error saving note: ' + error.message);
+            }
+        }
+
         document.addEventListener('click', function (e) {
             if (!e.target.closest('.habit-menu')) {
                 document.querySelectorAll('.habit-dropdown').forEach(dd => {
@@ -1021,13 +1280,19 @@
                 const dateStr = d.toISOString().split('T')[0];
                 const isCompleted = habit.completed_dates.includes(dateStr);
                 const isToday = dateStr === today.toISOString().split('T')[0];
+                const hasNote = habit.notes && habit.notes[dateStr] && habit.notes[dateStr].trim();
 
                 const classes = ['calendar-day'];
                 if (isCompleted) classes.push('completed');
                 if (isToday) classes.push('today');
 
-                calendarHtml += `<div class="${classes.join(' ')}" title="${dateStr}">
-                    ${d.getDate()}
+                const noteIndicator = hasNote ? '📝' : '';
+
+                calendarHtml += `<div class="${classes.join(' ')}" 
+                    onclick="openNotePopup('${dateStr}', ${habit.id})" 
+                    title="${dateStr}${hasNote ? ' (Has note)' : ''}">
+                    <div>${d.getDate()}</div>
+                    <div style="font-size: 8px;">${noteIndicator}</div>
                 </div>`;
             }
 
@@ -1068,6 +1333,13 @@
                                 <div class="streak-emoji ${glowClass}">${habit.icon}</div>
                                 <div class="streak-text">Current Streak: ${habit.current_streak}</div>
                             </div>
+                            <div class="streak-controls">
+                                <button class="streak-done-btn ${completedToday ? 'completed' : ''}" 
+                                        onclick="completeHabit(${habit.id})">
+                                    ${completedToday ? '✓ Done' : 'Done Today'}
+                                </button>
+                                <button class="streak-reset-btn" onclick="resetHabit(${habit.id})">Reset</button>
+                            </div>
                             <div class="best-streak">
                                 <div style="font-size: 1.2em; font-weight: 600;">${habit.best_streak}</div>
                                 <div style="font-size: 0.9em;">Best Streak</div>
@@ -1082,14 +1354,6 @@
                             <div class="calendar-container" id="calendar-${habit.id}">
                                 ${generateCalendarView(habit)}
                             </div>
-                        </div>
-                        
-                        <div class="habit-actions">
-                            <button class="check-btn ${completedToday ? 'completed' : ''}" 
-                                    onclick="completeHabit(${habit.id})">
-                                ${completedToday ? '✓ Done Today' : 'Mark Complete'}
-                            </button>
-                            <button class="reset-btn" onclick="resetHabit(${habit.id})">Reset</button>
                         </div>
                     </div>
                 `;
