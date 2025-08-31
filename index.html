@@ -395,12 +395,12 @@
         const SUPABASE_URL = 'https://nrsoywnegklryvmuguzy.supabase.co'
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yc295d25lZ2tscnl2bXVndXp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MjMxMjAsImV4cCI6MjA3MjE5OTEyMH0.M2C0KP2AYQz9LLICs4AKsdYSoR0pvdzdf3Yz_eSG8Mw'
 
-        // Initialize Supabase (will show error until you add your credentials)
+        // Initialize Supabase
         let supabase;
         try {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         } catch (error) {
-            showError('Please configure Supabase credentials in the code');
+            console.error('Supabase initialization error:', error);
         }
 
         let currentUser = null;
@@ -422,9 +422,21 @@
 
         // Initialize app
         async function init() {
+            // Wait a moment for DOM to be ready
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             try {
+                console.log('Starting initialization...');
+
+                if (!supabase) {
+                    showError('Failed to initialize Supabase. Check your credentials.');
+                    return;
+                }
+
                 // Check if user is already logged in
-                const { data: { user } } = await supabase.auth.getUser();
+                const { data: { user }, error } = await supabase.auth.getUser();
+
+                console.log('User check result:', user, error);
 
                 if (user) {
                     currentUser = user;
@@ -434,6 +446,7 @@
                     showAuth();
                 }
             } catch (error) {
+                console.error('Init error:', error);
                 showError('Failed to initialize app: ' + error.message);
             }
 
@@ -781,9 +794,13 @@
             if (e.key === 'Enter') addHabit();
         });
 
-        // Initialize app
-        if (supabase) {
-            init();
+        // Initialize app when DOM is ready
+        if (typeof window !== 'undefined') {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
         }
     </script>
 </body>
