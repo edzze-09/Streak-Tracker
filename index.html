@@ -1523,10 +1523,20 @@
         });
 
         if (typeof window !== 'undefined') {
+            // Add immediate fallback
+            setTimeout(() => {
+                if (!loadingState.classList.contains('hidden')) {
+                    console.log('Emergency loading fallback triggered');
+                    loadingState.classList.add('hidden');
+                    showAuth();
+                }
+            }, 3000);
+
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
-                init();
+                // Small delay to ensure Supabase is fully loaded
+                setTimeout(init, 100);
             }
         }
     </script>
