@@ -1103,7 +1103,14 @@
         }
 
         async function logout() {
+            // Prevent logout during initialization
+            if (isInitializing) {
+                console.log('Logout prevented during initialization');
+                return;
+            }
+
             try {
+                console.log('Manual logout triggered');
                 await supabase.auth.signOut();
                 currentUser = null;
                 userDisplayName = '';
