@@ -958,6 +958,8 @@
 
         async function checkUserName() {
             try {
+                console.log('Checking user name for:', currentUser.id);
+
                 const { data, error } = await supabase
                     .from('user_profiles')
                     .select('display_name')
@@ -965,17 +967,20 @@
                     .single();
 
                 if (error && error.code !== 'PGRST116') {
+                    console.error('Error fetching user profile:', error);
                     throw error;
                 }
 
                 if (data && data.display_name) {
                     userDisplayName = data.display_name;
+                    console.log('Found existing display name:', userDisplayName);
                     showMainApp();
                     await loadHabits();
                 } else {
                     // Check if user has a display name from their auth provider (Google)
                     if (currentUser.user_metadata && currentUser.user_metadata.full_name) {
                         userDisplayName = currentUser.user_metadata.full_name;
+                        console.log('Using Google display name:', userDisplayName);
                         // Save it to database
                         await supabase
                             .from('user_profiles')
@@ -986,6 +991,7 @@
                         showMainApp();
                         await loadHabits();
                     } else {
+                        console.log('No display name found, showing name setup');
                         showNameSetup();
                     }
                 }
